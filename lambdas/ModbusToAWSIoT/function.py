@@ -15,7 +15,7 @@ import os
 site_pkgs = os.path.join(os.path.dirname(os.path.realpath(__file__)), "site-packages")
 sys.path.append(site_pkgs)
 
-import greengrasssdk  # noqa
+# import greengrasssdk  # noqa
 
 from pymodbus.client.sync import ModbusTcpClient as ModbusClient
 from pymodbus.payload import BinaryPayloadDecoder
@@ -30,14 +30,15 @@ from pymodbus.compat import iteritems
 
 # Default port for modbus slave is typically 502. Using 5020 for simulation to
 # avoid root permissions.
-logger = logging.getLogger(__name__)
+log = logging.getLogger(__name__)
 logging.basicConfig(stream=sys.stdout, level=logging.DEBUG)
 
 # TODO: use ENV
+log.info("Initializing modbus client: {0}:{1}".format('127.0.0.1', 5020))
 mbclient = ModbusClient('127.0.0.1', port=5020)
 
 # Creating a greengrass core sdk client
-client = greengrasssdk.client('iot-data')
+# client = greengrasssdk.client('iot-data')
 
 
 # This procedure will poll the bearing temperature from a
@@ -45,7 +46,7 @@ client = greengrasssdk.client('iot-data')
 def poll_temp():
     while True:
         try:
-            # connect to modbus slave device
+            log.info("Connecting to modbus slave device...")
             mbclient.connect()
             # set the address and number of bytes that will be read on the modbus device
             address = 0x00
@@ -57,9 +58,11 @@ def poll_temp():
             decoded = {
                 'float': decoder.decode_32bit_float()
             }
+            log.info("Value decoded: {0}".format(decoded))
+
             # publish results to topic in AWS IoT
-            for name, value in iteritems(decoded):
-                client.publish(topic='dt/controller/extruder/plc1/rtd', payload=json.dumps({'Temp': value}))
+#            for name, value in iteritems(decoded):
+#                client.publish(topic='dt/controller/extruder/plc1/rtd', payload=json.dumps({'Temp': value}))
         except Exception as e:
             logging.info("Error: {0}".format(str(e)))
 
