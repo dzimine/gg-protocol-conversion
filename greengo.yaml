@@ -1,0 +1,30 @@
+# Greeengrass Group definition file
+Group:
+  name: Modbus-proxy
+Cores:
+  - name: Modbus-proxy_core
+    key_path: ./certs
+    config_path: ./config
+    SyncShadow: False
+
+Lambdas:
+  - name: ModbusToAWSIoT
+    handler: function.handler
+    package: lambdas/ModbusToAWSIoT
+    alias: dev
+    greengrassConfig:
+      MemorySize: 128000 # Kb, ask AWS why
+      Timeout: 10 # Sec
+      Pinned: True # Set True for long-lived functions
+      Environment:
+        AccessSysfs: False
+        Variables:
+           INTERVAL: '5'
+           HOST: '127.0.0.1'
+           PORT: '5020'
+
+Subscriptions:
+  - Source: Lambda::ModbusToAWSIoT
+    Subject: '#'
+    Target: cloud
+
