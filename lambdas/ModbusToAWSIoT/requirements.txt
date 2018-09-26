@@ -1,1 +1,1 @@
-pymodbus
+git+https://github.com/dzimine/pymodbus.git@DZ/fix_bug
