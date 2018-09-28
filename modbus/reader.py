@@ -1,27 +1,18 @@
-# ModbusToAWSIoT.py
-# This is an example script that connects to a modbus slave device to read
-# a temperature value and publish to an MQTT Topic in AWS IoT every 5 seconds.
-# If an exception occurs, it will wait 5 seconds and try again.
-# Since the function is long-lived it will run forever when deployed to a
-# Greengrass core.  The handler will NOT be invoked in our example since
-# we are executing an infinite loop.
+#
+# Reads the registry from modbus slave device
+#
 
-import time
 import logging
 import sys
-import json
 
 # import pymodbus libraries for the modbus client
 from pymodbus.client.sync import ModbusTcpClient as ModbusClient
 from pymodbus.payload import BinaryPayloadDecoder
 # from pymodbus.payload import BinaryPayloadBuilder
 from pymodbus.constants import Endian
-from pymodbus.compat import iteritems
 
 # Instantiate the client for your modbus slave device. In this example we are
-# using the local IP address where a simulator exists. Change this to your
-# desired IP. In addition, the typical default port for Modbus TCP is 502. For
-# this example, 5020 was used.
+# using the local IP address where a simulator exists.
 mbclient = ModbusClient('127.0.0.1', port=5020)
 
 # Default port for modbus slave is typically 502. Using 5020 for simulation to
@@ -30,7 +21,7 @@ logger = logging.getLogger(__name__)
 logging.basicConfig(stream=sys.stdout, level=logging.DEBUG)
 
 
-# Get the bearing value from a modbus slave device (simulator)
+# Get the values from a modbus slave device (simulator)
 def get_value():
     try:
         # connect to modbus slave device
@@ -43,7 +34,9 @@ def get_value():
         # decode results as a 32 bit float
         decoder = BinaryPayloadDecoder.fromRegisters(rr.registers, wordorder=Endian.Big)
         decoded = {
-            'float': decoder.decode_32bit_float()
+            'humdity': decoder.decode_32bit_float(),
+            'light': decoder.decode_8bit_int(),
+            'temp': decoder.decode_32bit_float()
         }
         logging.info("Value decoded: {0}".format(decoded))
     except Exception, e:
