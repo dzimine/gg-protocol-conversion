@@ -6,6 +6,7 @@
 # import platform
 # from threading import Timer
 import time
+import datetime
 import logging
 import sys
 import json
@@ -56,13 +57,17 @@ def poll_temp():
             # decode results as a 32 bit float
             decoder = BinaryPayloadDecoder.fromRegisters(rr.registers, wordorder=Endian.Big)
             decoded = {
-                'float': decoder.decode_32bit_float()
+                'humdity': decoder.decode_32bit_float(),
+                'light': decoder.decode_8bit_int(),
+                'temp': decoder.decode_32bit_float()
             }
             log.info("Value decoded: {0}".format(decoded))
 
+            decoded['time'] = str(datetime.datetime.now())
+            decoded['timestamp'] = int(time.time())
+
             log.info("Publish results to topic in AWS IoT...")
-            for name, value in iteritems(decoded):
-                client.publish(topic='dt/controller/plc1/rtd', payload=json.dumps({'Temp': value}))
+            client.publish(topic='dt/controller/plc1/rtd', payload=json.dumps(decoded))
         except Exception as e:
             logging.info("Error: {0}".format(str(e)))
             client.publish(topic='dt/controller/errors', payload=json.dumps({'Error': str(e)}))
