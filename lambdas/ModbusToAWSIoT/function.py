@@ -60,7 +60,7 @@ def poll_device():
             log.info("Value decoded: {0}".format(decoded))
 
             decoded['time'] = str(datetime.datetime.now())
-            decoded['timestamp'] = int(time.time())
+            decoded['@timestamp'] = int(time.time())
 
             log.info("Publish results to topic in AWS IoT...")
             client.publish(topic='dt/controller/plc1/rtd', payload=json.dumps(decoded))
