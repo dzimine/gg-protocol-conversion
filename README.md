@@ -93,3 +93,17 @@ run `./scripts/update_ggc.sh`  on the Vagrant VM.
     ```
     tail -f /greengrass/ggc/var/log/user/$REGION/$ACCOUNT/ModbusToAWSIoT.log
     ```
+
+## Other
+
+The data are being sent to AWS IoT via MQTT, now what? You likely want to save them, do something
+with them, and report back. The two options are AWS IoT Analytics, and Elastic Search. The way to go
+is to set up IoT Rule that sends the MQTT topic to the correspondent service. It's always a good
+idea to set up an Error action to "Republish message to an AWS IoT topic" (say `rules/errors`) so
+you can see when things go wrong.
+
+The rest of the setup can also be codified but is currently set up manually via AWS console. Below
+I drop some notes on how to do it.
+
+The [es_mapping.json](./es_mapping.json) file contains a proper ES index type setup, use PUT
+on ES endpoint to create index prior (!!!) to sending traffic there.
