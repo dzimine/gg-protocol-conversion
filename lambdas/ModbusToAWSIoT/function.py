@@ -53,7 +53,7 @@ def poll_device():
             # decode results as a 32 bit float
             decoder = BinaryPayloadDecoder.fromRegisters(rr.registers, wordorder=Endian.Big)
             decoded = {
-                'humdity': decoder.decode_32bit_float(),
+                'humidity': decoder.decode_32bit_float(),
                 'light': decoder.decode_8bit_int(),
                 'temp': decoder.decode_32bit_float()
             }
