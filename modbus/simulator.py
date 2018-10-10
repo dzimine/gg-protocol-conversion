@@ -51,7 +51,7 @@ def build_payload():
             'displayName': 'light',
             'type': 'uint',
             'bits': 8,
-            'value': int(random.random())
+            'value': int(random.choice([0, 1]))
         },
         {
             'displayName': 'temp',

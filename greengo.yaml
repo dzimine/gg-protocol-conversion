@@ -28,3 +28,11 @@ Subscriptions:
     Subject: '#'
     Target: cloud
 
+Loggers:
+  - Component: Lambda
+    Id: logger_1
+    Level: DEBUG
+    Space: 1024
+    Type: FileSystem
+
+
