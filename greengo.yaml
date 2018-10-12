@@ -20,8 +20,7 @@ Lambdas:
         AccessSysfs: False
         Variables:
            INTERVAL: '5'
-           HOST: '127.0.0.1'
-           PORT: '5020'
+           HOSTS: '127.0.0.1:5020, localhost:5020'
 
 Subscriptions:
   - Source: Lambda::ModbusToAWSIoT

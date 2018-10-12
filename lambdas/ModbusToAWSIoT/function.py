@@ -26,51 +26,73 @@ from pymodbus.constants import Endian  # noqa
 log = logging.getLogger(__name__)
 logging.basicConfig(stream=sys.stdout, level=logging.DEBUG)
 
-HOST = os.environ.get('HOST', '127.0.0.1')
-# Default port for modbus slave is typically 502. Using 5020 for simulation to avoid root permissions.
+HOSTS = os.environ.get('HOSTS', '127.0.0.1:5020, 127.0.0.1:5020')
 PORT = os.environ.get('PORT', 5020)
 POLL_INTERVAL = os.environ.get('POLL_INTERVAL', 5)
 
-log.info("Initializing modbus client: {0}:{1}".format(HOST, PORT))
-mbclient = ModbusClient(HOST, port=PORT)
 
-log.info("Initializing greengrass SDK client...")
-client = greengrasssdk.client('iot-data')
+def get_modbus_clients(hostlist):
+    mb_clients = []
+    try:
+        hosts = [h.strip() for h in hostlist.split(',')]
+        for h in hosts:
+            addr = h.split(':')
+            host = addr[0]
+            port = int(addr[1]) if len(addr) > 1 else 502
+            log.info("Initializing modbus client: {0}:{1}".format(host, port))
+            mb_clients.append(ModbusClient(host, port=port))
+    except Exception as e:
+        logging.info("Error while parsing host list '{0}': {1}".format(hostlist, str(e)))
+        raise(e)
+    return mb_clients
 
 
 # This procedure will poll the bearing temperature from a
 # modbus slave device (simulator) and publish the value to AWS IoT via MQTT.
-def poll_device():
-    while True:
-        try:
-            log.info("Connecting to modbus slave device...")
-            mbclient.connect()
-            # set the address and number of bytes that will be read on the modbus device
-            address = 0x00
-            count = 8
-            # read the holding register value for the temperature
-            rr = mbclient.read_holding_registers(address, count, unit=1)
-            # decode results as a 32 bit float
-            decoder = BinaryPayloadDecoder.fromRegisters(rr.registers, wordorder=Endian.Big)
-            decoded = {
-                'humidity': decoder.decode_32bit_float(),
-                'light': decoder.decode_8bit_int(),
-                'temp': decoder.decode_32bit_float()
-            }
-            log.info("Value decoded: {0}".format(decoded))
+def poll_device(mb_client, device_id, mqtt_client):
+    try:
+        log.info("Connecting to modbus slave device...")
+        # set the address and number of bytes that will be read on the modbus device
+        address = 0x00
+        count = 8
+        # read the holding register value for the temperature
+        rr = mb_client.read_holding_registers(address, count, unit=1)
+        # decode results as a 32 bit float
+        decoder = BinaryPayloadDecoder.fromRegisters(rr.registers, wordorder=Endian.Big)
+        decoded = {
+            'humidity': decoder.decode_32bit_float(),
+            'light': decoder.decode_8bit_int(),
+            'temp': decoder.decode_32bit_float()
+        }
+        log.info("Value decoded: {0}".format(decoded))
 
-            decoded['time'] = str(datetime.datetime.now())
-            decoded['@timestamp'] = int(time.time())
+        decoded['time'] = str(datetime.datetime.now())
+        decoded['@timestamp'] = int(time.time())
 
-            log.info("Publish results to topic in AWS IoT...")
-            client.publish(topic='dt/controller/plc1/rtd', payload=json.dumps(decoded))
-        except Exception as e:
-            logging.info("Error: {0}".format(str(e)))
-            client.publish(topic='dt/controller/errors', payload=json.dumps({'Error': str(e)}))
+        log.info("Publish results to topic in AWS IoT...")
+        mqtt_client.publish(
+            topic='dt/control/{0}'.format(device_id),
+            payload=json.dumps(decoded))
+    except Exception as e:
+        logging.info("Error: {0}".format(str(e)))
+        mqtt_client.publish(
+            topic='dt/errors/{0}'.format(device_id),
+            payload=json.dumps({'Error': str(e)}))
 
-        time.sleep(POLL_INTERVAL)
 
-poll_device()
+log.info("Initializing greengrass SDK client...")
+mqtt_client = greengrasssdk.client('iot-data')
+
+mb_clients = get_modbus_clients(HOSTS)
+print mb_clients
+
+# The NAIVE implementation would do for about a dozen of slaves.
+# To scale for 30+ clients, re-implement as Async alient, e.g. with Twisted https://goo.gl/sDu5vc
+while True:
+    for i, mbc in enumerate(mb_clients):
+        device_id = 'dev{0}'.format(i)
+        poll_device(mbc, device_id, mqtt_client)
+    time.sleep(POLL_INTERVAL)
 
 
 # This is a dummy handler and will not be invoked on GG
