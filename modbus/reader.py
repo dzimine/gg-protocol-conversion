@@ -10,11 +10,12 @@ from pymodbus.client.sync import ModbusTcpClient as ModbusClient
 
 HOST = '127.0.0.1'
 PORT = 5020
+UNIT = 1
 
 logger = logging.getLogger(__name__)
 logging.basicConfig(stream=sys.stdout, level=logging.DEBUG)
 
-mbclient = ModbusClient('127.0.0.1', port=5020)
+mbclient = ModbusClient(HOST, port=PORT)
 
 
 # Get the values from a modbus slave device (simulator)
@@ -32,7 +33,7 @@ def get_value():
         # Read a continious block of registers [from...to], parse out the values
         addr_from = 1202
         count = 10
-        rr = mbclient.read_holding_registers(addr_from, count, unit=1)
+        rr = mbclient.read_holding_registers(addr_from, count, unit=UNIT)
         d = {
             'frequency': get(1202),
             'current': get(1204),
@@ -44,7 +45,7 @@ def get_value():
         # Read a continious block of registers [from...to], parse out the values
         addr_from = 2004
         count = 9
-        rr = mbclient.read_holding_registers(addr_from, count, unit=1)
+        rr = mbclient.read_holding_registers(addr_from, count, unit=UNIT)
         d['speed_SPD'] = get(2004)
         d['speed_SPDM'] = get(2011)
         d['speed_SPD1'] = get(2012)
