@@ -5,6 +5,7 @@
 import time
 import logging
 import sys
+import random
 
 from pymodbus.client.sync import ModbusTcpClient as ModbusClient
 from pymodbus.payload import BinaryPayloadBuilder
@@ -39,42 +40,42 @@ registers = [
         'address': 1202,
         'dtype': 'float',
         'bits': 32,
-        'value': 1202.222
+        'value': '1202.222 + 50 * random.random()'
     },
     {
         'displayName': 'current',
         'address': 1204,
-        'value': 1204.444
+        'value': '1204.444 + random.uniform(-100, 100)'
     },
     {
         'displayName': 'torque',
         'address': 1205,
-        'value': 1205.555
+        'value': '1204.444 + random.uniform(-100, 100)'
     },
     {
         'displayName': 'voltage',
         'address': 1208,
-        'value': 1208.888
+        'value': '1204.444 + random.uniform(-100, 100)'
     },
     {
         'displayName': 'power',
         'address': 1211,
-        'value': 1211.111
+        'value': '1204.444 + random.uniform(-100, 100)'
     },
     {
         'displayName': 'speed_SPD',
         'address': 2004,
-        'value': 2004.444
+        'value': '1204.444 + random.uniform(-100, 100)'
     },
     {
         'displayName': 'speed_SPDM',
         'address': 2011,
-        'value': 2011.111
+        'value': '1204.444 + random.uniform(-100, 100)'
     },
     {
         'displayName': 'speed_SPD1',
         'address': 2012,
-        'value': 1202.222
+        'value': '1204.444 + random.uniform(-100, 100)'
     },
     {
         'displayName': 'device_id',
@@ -121,12 +122,22 @@ class RegisterWriter():
 def poll_temp():
     writer = RegisterWriter(HOST, PORT)
 
+    random.seed()  # Shut up pyflakes "imported but unused"
+
     while True:
         try:
+            written = []
             for r in registers:
-                writer.write(**r)
+                # Eval values to generate simulated data
+                data = r.copy()
+                if r.get('dtype') != 'string' and isinstance(r['value'], str):
+                    data['value'] = eval(r['value'])
 
-            logging.info("Wrote to holding registers: {0}".format(str(registers)))
+                writer.write(**data)
+
+                written.append({data['displayName']: data['value']})
+
+            logging.info("Wrote to holding registers: {0}".format(written))
 
         except Exception as e:
             logging.info("Error: {0}".format(str(e)))
@@ -134,5 +145,4 @@ def poll_temp():
 
         time.sleep(5)
 
-# executing polling on startup.
 poll_temp()
