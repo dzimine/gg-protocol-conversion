@@ -40,32 +40,38 @@ registers = [
         'address': 1202,
         'dtype': 'float',
         'bits': 32,
-        'value': '1202.222 + 50 * random.random()'
+        'value': 1202.222
     },
     {
         'displayName': 'current',
         'address': 1204,
-        'value': '1204.444 + random.uniform(-100, 100)'
+        'value': 1204
     },
     {
         'displayName': 'torque',
         'address': 1205,
+        'dtype': 'float',
+        'bits': 32,
         'value': '1204.444 + random.uniform(-100, 100)'
     },
     {
         'displayName': 'voltage',
         'address': 1208,
-        'value': '1204.444 + random.uniform(-100, 100)'
+        'value': '1205.555 + random.uniform(-100, 100)'
     },
     {
         'displayName': 'power',
         'address': 1211,
-        'value': '1204.444 + random.uniform(-100, 100)'
+        'dtype': 'float',
+        'bits': 32,
+        'value': 1202.222
     },
     {
         'displayName': 'speed_SPD',
         'address': 2004,
-        'value': '1204.444 + random.uniform(-100, 100)'
+        'dtype': 'float',
+        'bits': 32,
+        'value': '2004.444 + random.uniform(-100, 100)'
     },
     {
         'displayName': 'speed_SPDM',
@@ -110,7 +116,9 @@ class RegisterWriter():
             logging.debug("Packed value '{0}' with method {1} into {2}".format(
                 value, method_name, payload))
 
-            self.mb_client.write_registers(address, payload, skip_encode=True, unit=UNIT)
+            registers = builder.to_registers()
+            self.mb_client.write_registers(address, registers, unit=1)
+            # self.mb_client.write_registers(address, payload, skip_encode=True, unit=UNIT)
 
         else:
             logging.debug("Wrote value '{0}' to 16bit register".format(value))
@@ -140,8 +148,7 @@ def poll_temp():
             logging.info("Wrote to holding registers: {0}".format(written))
 
         except Exception as e:
-            logging.info("Error: {0}".format(str(e)))
-            raise(e)
+            logging.exception("Error: {0}".format(str(e)))
 
         time.sleep(5)
 
