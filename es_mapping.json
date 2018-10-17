@@ -9,18 +9,39 @@
           "type": "date",
           "format": "epoch_second"
         },
-        "humidity": {
-          "type": "float"
-        },
-        "temp": {
-          "type": "float"
-        },
-        "light": {
-          "type": "integer"
-        },
         "time": {
           "type": "date",
           "format":"YYYY-MM-dd HH:mm:ss.SSSSSS"
+        },
+        "device_id": {
+          "type": "keyword"
+        },
+        "frequency": {
+          "type": "float"
+        },
+        "current": {
+          "type": "integer"
+        },
+        "torque": {
+          "type": "float"
+        },
+        "voltage": {
+          "type": "integer"
+        },
+        "power": {
+          "type": "integer"
+        },
+        "speed_SPD": {
+          "type": "float"
+        },
+        "speed_SPDM": {
+          "type": "integer"
+        },
+         "speed_SPD1": {
+          "type": "float"
+        },
+        "power_computed": {
+          "type": "float"
         }
       }
     }
