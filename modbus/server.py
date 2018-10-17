@@ -20,7 +20,7 @@ try:
     store = ModbusSlaveContext(
         co=ModbusSequentialDataBlock(0, [11] * 100),
         di=ModbusSequentialDataBlock(0, [12] * 100),
-        hr=ModbusSequentialDataBlock(1000, [13] * 2000),
+        hr=ModbusSequentialDataBlock(3000, [13] * 10000),
         ir=ModbusSequentialDataBlock(0, [14] * 100)
     )
 

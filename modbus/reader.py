@@ -33,9 +33,9 @@ class RegistryReader(object):
         self.wordorder = Endian.Little
 
     @classmethod
-    def readBlock(klass, addr_from, addr_to, unit):
+    def readBlock(klass, mb_client, addr_from, addr_to, unit):
 
-        rr = mbclient.read_holding_registers(addr_from, addr_to - addr_from + 2, unit=unit)
+        rr = mb_client.read_holding_registers(addr_from, addr_to - addr_from + 2, unit=unit)
         return klass(addr_from, addr_to, rr.registers)
 
     def read(self, addr):
@@ -52,30 +52,30 @@ class RegistryReader(object):
 # Get the values from a modbus slave device (simulator)
 def get_value():
 
-    reader = RegistryReader.readBlock(addr_from=1202, addr_to=1214, unit=UNIT)
+    reader = RegistryReader.readBlock(mbclient, addr_from=3202, addr_to=3236, unit=UNIT)
     d = {
-        'frequency': reader.read(1202),
-        'current': reader.read(1204),
-        'torque': reader.read(1205),
-        'voltage': reader.read(1208),
-        'power': reader.read(1211)
+        'frequency': reader.read(3202),
+        'current': reader.read(3204),
+        'torque': reader.read(3205),
+        'voltage': reader.read(3208),
+        'power': reader.read(3211),
+        'torqueNm': reader.read(3216),
+        'torquePercent': reader.read(3226)
     }
 
-    logging.info("Value decoded: {0}".format(json.dumps(d, indent=4)))
+    logger.info("Value decoded: {0}".format(json.dumps(d, indent=4)))
 
     # Read a continious block of registers [from...to], parse out the values
-    reader = RegistryReader.readBlock(addr_from=2004, addr_to=2012, unit=UNIT)
+    reader = RegistryReader.readBlock(mbclient, addr_from=12004, addr_to=12004, unit=UNIT)
 
-    d['speed_SPD'] = reader.read(2004)
-    d['speed_SPDM'] = reader.read(2011)
-    d['speed_SPD1'] = reader.read(2012)
+    d['speed_SPD'] = reader.read(12004)
 
     # Compute the power
     d['power_computed'] = d['torque'] * (d['speed_SPD'] / 5252.0)
 
     d['device_id'] = DEVICE_ID
 
-    logging.info("Value decoded: {0}".format(json.dumps(d, indent=4)))
+    logger.info("Value decoded: {0}".format(json.dumps(d, indent=4)))
     return d
 
 

@@ -38,47 +38,47 @@ def get_builder(typename, bits):
 registers = [
     {
         'displayName': 'frequency',
-        'address': 1202,
-        'value': '1202.222 + random.uniform(-100, 100)'
+        'address': 3202,
+        'value': '100 + random.uniform(-10, 10)'
     },
     {
         'displayName': 'current',
-        'address': 1204,
-        'value': '1204 + random.uniform(-100, 100)'
+        'address': 3204,
+        'value': '8 + random.uniform(-1, 1)'
     },
     {
         'displayName': 'torque',
-        'address': 1205,
-        'value': '1205 + random.uniform(-100, 100)'
+        'address': 3205,
+        'value': '73 + random.uniform(-3, 3)'
     },
     {
         'displayName': 'voltage',
-        'address': 1208,
-        'value': '1208.888 + random.uniform(-100, 100)'
+        'address': 3208,
+        'value': '40 + random.uniform(-2, 2)'
     },
     {
         'displayName': 'power',
-        'address': 1211,
-        'value': '1202.222 + random.uniform(-100, 100)'
+        'address': 3211,
+        'value': '1 + random.uniform(0, 1.2)'
+    },
+    {
+        'displayName': 'torqueNm',
+        'address': 3216,
+        'value': 1
+    },
+    {
+        'displayName': 'torquePercent',
+        'address': 3226,
+        'value': '300 + random.uniform(-30, 30)'
     },
     {
         'displayName': 'speed_SPD',
-        'address': 2004,
-        'value': '2004.444 + random.uniform(-100, 100)'
-    },
-    {
-        'displayName': 'speed_SPDM',
-        'address': 2011,
-        'value': '2011.111 + random.uniform(-100, 100)'
-    },
-    {
-        'displayName': 'speed_SPD1',
-        'address': 2012,
-        'value': '2012.222 + random.uniform(-100, 100)'
+        'address': 12004,
+        'value': '300 + random.uniform(-1.5, 1.5)'
     },
     {
         'displayName': 'device_id',
-        'address': 1012,
+        'address': 3200,
         'dtype': 'string',
         'value': 'dev0'
     },
