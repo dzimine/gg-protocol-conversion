@@ -1,10 +1,8 @@
 # ModbusToAWSIoT.py
 # This is an example script that connects to a modbus slave device to read
-# a temperature value and publish to an MQTT Topic in AWS IoT every few seconds.
+# a data values and publish to an MQTT Topic in AWS IoT every few seconds.
 # If an exception occurs, it will wait few seconds and try again.
 
-# import platform
-# from threading import Timer
 import time
 import datetime
 import logging
@@ -78,19 +76,18 @@ def get_modbus_clients(hostlist):
     return mb_clients
 
 
-# This procedure will poll the bearing temperature from a
-# modbus slave device (simulator) and publish the value to AWS IoT via MQTT.
+# This procedure will poll the data modbus slave device (simulator)
 def poll_device(mb_client, device_id, mqtt_client):
     try:
         log.info("Connecting to modbus slave device {0}:{0}".format(
             mb_client.host, mb_client.port))
 
         # Read a continious block of registers [from...to], parse out the values
-        reader = RegistryReader.readBlock(mb_client, addr_from=1202, addr_to=1214, unit=UNIT)
+        reader = RegistryReader.readBlock(mb_client, addr_from=1202, addr_to=1212, unit=UNIT)
         d = {
-            'frequency': reader.read_encoded(1202, type='float', bits=32),
+            'frequency': reader.read(1202),
             'current': reader.read(1204),
-            'torque': reader.read_encoded(1205, type='float', bits=32),
+            'torque': reader.read(1205),
             'voltage': reader.read(1208),
             'power': reader.read(1211)
         }
@@ -100,7 +97,7 @@ def poll_device(mb_client, device_id, mqtt_client):
         # Read a continious block of registers [from...to], parse out the values
         reader = RegistryReader.readBlock(mb_client, addr_from=2004, addr_to=2012, unit=UNIT)
 
-        d['speed_SPD'] = reader.read_encoded(2004, type='float', bits=32)
+        d['speed_SPD'] = reader.read(2004)
         d['speed_SPDM'] = reader.read(2011)
         d['speed_SPD1'] = reader.read(2012)
 
@@ -127,6 +124,7 @@ mqtt_client = greengrasssdk.client('iot-data')
 
 mb_clients = get_modbus_clients(HOSTS)
 log.debug("Modbus slaves: {0}".format(mb_clients))
+
 # The NAIVE implementation would do for about a dozen of slaves.
 # To scale for 30+ clients, re-implement as Async alient, e.g. with Twisted https://goo.gl/sDu5vc
 while True:

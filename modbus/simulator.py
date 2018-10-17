@@ -14,6 +14,7 @@ from pymodbus.constants import Endian
 HOST = '127.0.0.1'
 PORT = 5020
 UNIT = 1
+INTERVAL = 5
 
 # instantiate logger which will log any exceptions to Cloudwatch or Greengrass
 # local logs
@@ -38,50 +39,42 @@ registers = [
     {
         'displayName': 'frequency',
         'address': 1202,
-        'dtype': 'float',
-        'bits': 32,
-        'value': 1202.222
+        'value': '1202.222 + random.uniform(-100, 100)'
     },
     {
         'displayName': 'current',
         'address': 1204,
-        'value': 1204
+        'value': '1204 + random.uniform(-100, 100)'
     },
     {
         'displayName': 'torque',
         'address': 1205,
-        'dtype': 'float',
-        'bits': 32,
-        'value': '1204.444 + random.uniform(-100, 100)'
+        'value': '1205 + random.uniform(-100, 100)'
     },
     {
         'displayName': 'voltage',
         'address': 1208,
-        'value': '1205.555 + random.uniform(-100, 100)'
+        'value': '1208.888 + random.uniform(-100, 100)'
     },
     {
         'displayName': 'power',
         'address': 1211,
-        'dtype': 'float',
-        'bits': 32,
-        'value': 1202.222
+        'value': '1202.222 + random.uniform(-100, 100)'
     },
     {
         'displayName': 'speed_SPD',
         'address': 2004,
-        'dtype': 'float',
-        'bits': 32,
         'value': '2004.444 + random.uniform(-100, 100)'
     },
     {
         'displayName': 'speed_SPDM',
         'address': 2011,
-        'value': '1204.444 + random.uniform(-100, 100)'
+        'value': '2011.111 + random.uniform(-100, 100)'
     },
     {
         'displayName': 'speed_SPD1',
         'address': 2012,
-        'value': '1204.444 + random.uniform(-100, 100)'
+        'value': '2012.222 + random.uniform(-100, 100)'
     },
     {
         'displayName': 'device_id',
@@ -150,6 +143,6 @@ def poll_temp():
         except Exception as e:
             logging.exception("Error: {0}".format(str(e)))
 
-        time.sleep(5)
+        time.sleep(INTERVAL)
 
 poll_temp()
