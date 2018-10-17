@@ -15,6 +15,7 @@ from pymodbus.constants import Endian
 HOST = '127.0.0.1'
 PORT = 5020
 UNIT = 1
+DEVICE_ID = 'dev_0'
 
 logger = logging.getLogger(__name__)
 logging.basicConfig(stream=sys.stdout, level=logging.DEBUG)
@@ -71,6 +72,8 @@ def get_value():
 
     # Compute the power
     d['power_computed'] = d['torque'] * (d['speed_SPD'] / 5252.0)
+
+    d['device_id'] = DEVICE_ID
 
     logging.info("Value decoded: {0}".format(json.dumps(d, indent=4)))
     return d
