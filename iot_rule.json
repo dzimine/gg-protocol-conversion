@@ -1,0 +1,24 @@
+{
+  "description": "Modbus devices to ElasticSearch for storing, querying, and Kibana views.",
+  "ruleName": "Modbus_to_ElasticSearch",
+  "sql": "SELECT * FROM 'dt/#'",
+  "awsIotSqlVersion": "2016-03-23",
+  "ruleDisabled": false,
+  "actions": [
+      {
+          "elasticsearch": {
+              "index": "${topic(2)}",
+              "roleArn": "arn:aws:iam::CHANGEME:role/service-role/modbus-elastic-test",
+              "endpoint": "https://search-gg-modbus-scpmnx5gq3bhpbdwimkhql7uhi.us-east-1.es.amazonaws.com",
+              "type": "_doc",
+              "id": "${newuuid()}"
+          }
+      }
+  ],
+  "errorAction": {
+      "republish": {
+          "topic": "rules/errors",
+          "roleArn": "arn:aws:iam::053075847820:role/service-role/iot_rules_mqtt_poster"
+      }
+  }
+}
