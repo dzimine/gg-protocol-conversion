@@ -28,7 +28,7 @@ Lambdas:
 
     alias: dev
     greengrassConfig:
-      MemorySize: 54000 # Kb, ask AWS why
+      MemorySize: 256000 # Kb, ask AWS why
       Timeout: 10 # Sec
       Pinned: True # Set True for long-lived functions
       Environment:
