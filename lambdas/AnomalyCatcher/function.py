@@ -4,8 +4,6 @@ import json
 import math
 import copy
 
-import psutil
-
 # Import installed packages (in site-packages)
 site_pkgs = os.path.join(os.path.dirname(os.path.realpath(__file__)), "site-packages")
 sys.path.append(site_pkgs)
@@ -35,6 +33,8 @@ The parameters than need to be changed for a different data set are T, ALPHA_0, 
 -KEY_PARAM: key from event which will become dynamo key
 '''
 
+print "Starting up..."
+
 # TODO: use Env variables
 T = 30
 ALPHA_0 = 0.95
@@ -42,6 +42,7 @@ BETA = 0.5
 THRESHOLD = .05
 DATA_COLS = ["torque"]
 KEY_PARAM = "device_id"
+TOPIC = 'dt/anomalies'
 
 
 class Table(object):
@@ -86,8 +87,6 @@ def handler(event, context):
 
     publish(newRecord, DATA_COLS)
     table.put_item(Item=newRecord)  # write new record to the table
-    process = psutil.Process(os.getpid())
-    print(process.memory_info()[0])
 
     return newRecord
 
@@ -186,7 +185,7 @@ def publish(newRecord, data_cols):
 
         payload = json.dumps(event, indent=4)
         print payload
-        client.publish(topic='dt/events', payload=json.dumps(event))
+        client.publish(topic=TOPIC, payload=json.dumps(event))
 
 if __name__ == '__main__':
     ''' Use for local testing. '''

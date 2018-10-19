@@ -24,6 +24,8 @@ from pymodbus.constants import Endian  # noqa
 log = logging.getLogger(__name__)
 logging.basicConfig(stream=sys.stdout, level=logging.DEBUG)
 
+log.info("Starting up...")
+
 HOSTS = os.environ.get('HOSTS', '127.0.0.1:5020, localhost:5020')
 PORT = os.environ.get('PORT', 5020)
 POLL_INTERVAL = os.environ.get('POLL_INTERVAL', 5)
@@ -110,7 +112,7 @@ def poll_device(mb_client, device_id, mqtt_client):
 
         log.info("Publish results to topic in AWS IoT...")
         mqtt_client.publish(
-            topic='dt/control/{0}'.format(device_id),
+            topic='dt/device_data/{0}'.format(device_id),
             payload=json.dumps(d))
     except Exception as e:
         logging.info("Error: {0}".format(str(e)))

@@ -29,11 +29,11 @@ Lambdas:
     alias: dev
     greengrassConfig:
       MemorySize: 256000 # Kb, ask AWS why
-      Timeout: 10 # Sec
+      Timeout: 5 # Sec
       Pinned: True # Set True for long-lived functions
       Environment:
         Variables:
-           INTERVAL: '4'
+           T: '30'
 
 Subscriptions:
   - Source: Lambda::ModbusToAWSIoT
@@ -41,7 +41,7 @@ Subscriptions:
     Target: cloud
 
   - Source: Lambda::ModbusToAWSIoT
-    Subject: 'dt/control/#'
+    Subject: 'dt/device_data/#'
     Target: Lambda::AnomalyCatcher
 
   - Source: Lambda::AnomalyCatcher
