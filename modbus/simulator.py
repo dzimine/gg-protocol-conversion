@@ -35,6 +35,14 @@ def get_builder(typename, bits):
     return lambda d: getattr(d, name)
 
 
+ANOMALY_PERIOD = 50
+anomaly_counter = 0
+
+
+def anomaly():
+    global anomaly_counter
+    return 10 if anomaly_counter % ANOMALY_PERIOD else 1
+
 registers = [
     {
         'displayName': 'frequency',
@@ -49,7 +57,7 @@ registers = [
     {
         'displayName': 'torque',
         'address': 3205,
-        'value': '73 + random.uniform(-3, 3)'
+        'value': '73 + anomaly() * random.uniform(-3, 3)'
     },
     {
         'displayName': 'voltage',
