@@ -22,8 +22,29 @@ Lambdas:
            INTERVAL: '5'
            HOSTS: '127.0.0.1:5020, localhost:5020'
 
+  - name: AnomalyCatcher
+    handler: function.handler
+    package: lambdas/AnomalyCatcher
+
+    alias: dev
+    greengrassConfig:
+      MemorySize: 256000 # Kb, ask AWS why
+      Timeout: 5 # Sec
+      Pinned: True # Set True for long-lived functions
+      Environment:
+        Variables:
+           T: '30'
+
 Subscriptions:
   - Source: Lambda::ModbusToAWSIoT
+    Subject: '#'
+    Target: cloud
+
+  - Source: Lambda::ModbusToAWSIoT
+    Subject: 'dt/device_data/#'
+    Target: Lambda::AnomalyCatcher
+
+  - Source: Lambda::AnomalyCatcher
     Subject: '#'
     Target: cloud
 

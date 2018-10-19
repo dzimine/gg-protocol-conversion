@@ -1,3 +1,4 @@
+PUT device_data
 {
   "settings" : {
       "number_of_shards" : 1
@@ -13,37 +14,80 @@
           "type": "date",
           "format":"YYYY-MM-dd HH:mm:ss.SSSSSS"
         },
-        "device_id": {
-          "type": "keyword"
-        },
-        "frequency": {
-          "type": "float"
-        },
-        "current": {
-          "type": "integer"
-        },
-        "torque": {
-          "type": "float"
-        },
-        "voltage": {
-          "type": "integer"
-        },
-        "power": {
-          "type": "integer"
-        },
-        "speed_SPD": {
-          "type": "float"
-        },
-        "speed_SPDM": {
-          "type": "integer"
-        },
-         "speed_SPD1": {
-          "type": "float"
-        },
-        "power_computed": {
-          "type": "float"
-        }
+        "device_id": {"type": "keyword"}
       }
     }
   }
 }
+
+PUT anomalies
+{
+  "settings" : {
+      "number_of_shards" : 1
+  },
+  "mappings" : {
+    "_doc" : {
+      "properties": {
+        "@timestamp": {
+          "type": "date",
+          "format": "epoch_second"
+        },
+        "time": {
+          "type": "date",
+          "format":"YYYY-MM-dd HH:mm:ss.SSSSSS"
+        },
+        "device_id": {"type": "keyword"},
+        "metric": {"type": "keyword"},
+        "anomaly": {"type": "boolean"}
+      }
+    }
+  }
+}
+
+PUT anomalies/_doc/1
+{
+    "s1_torque": 78.26086956521739,
+    "@timestamp": 1539916177,
+    "torque": 113,
+    "frequency": 108,
+    "voltage": 39,
+    "alpha_torque": 0.9565217391304348,
+    "current": 7,
+    "STD_torque": 12.289634818290606,
+    "anomaly": true,
+    "metric": "torque",
+    "torque_is_Anomaly": true,
+    "power": 1,
+    "P_torque": 0.005064465342887647,
+    "speed_SPD": 301,
+    "device_id": "dev1",
+    "torquePercent": 291,
+    "Z_torque": 2.955188038958622,
+    "value": 113,
+    "STD_next_torque": 14.118188673401699,
+    "time": "2018-10-19 02:29:37.967674",
+    "s2_torque": 6324.086956521738,
+    "s1_next_torque": 78.26086956521739,
+    "power_computed": 6.4761995430312265,
+    "torqueNm": 1
+}
+
+GET anomalies/_search
+
+PUT device_data/_doc/1
+{
+  "power": 1,
+  "torque": 75,
+  "torquePercent": 273,
+  "torqueNm": 1,
+  "current": 7,
+  "frequency": 98,
+  "voltage": 40,
+  "speed_SPD": 301,
+  "device_id": "dev_0",
+  "@timestamp": 1539916177,
+  "time": "2018-10-19 02:29:37.967674",
+  "power_computed": 4.298362528560548
+}
+
+GET device_data/_search

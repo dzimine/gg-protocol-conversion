@@ -24,6 +24,8 @@ from pymodbus.constants import Endian  # noqa
 log = logging.getLogger(__name__)
 logging.basicConfig(stream=sys.stdout, level=logging.DEBUG)
 
+log.info("Starting up...")
+
 HOSTS = os.environ.get('HOSTS', '127.0.0.1:5020, localhost:5020')
 PORT = os.environ.get('PORT', 5020)
 POLL_INTERVAL = os.environ.get('POLL_INTERVAL', 5)
@@ -44,8 +46,8 @@ class RegistryReader(object):
 
     @classmethod
     def readBlock(klass, mb_client, addr_from, addr_to, unit):
-
         rr = mb_client.read_holding_registers(addr_from, addr_to - addr_from + 2, unit=unit)
+        # TODO: catch error and throw user friendly exception.
         return klass(addr_from, addr_to, rr.registers)
 
     def read(self, addr):
@@ -83,23 +85,23 @@ def poll_device(mb_client, device_id, mqtt_client):
             mb_client.host, mb_client.port))
 
         # Read a continious block of registers [from...to], parse out the values
-        reader = RegistryReader.readBlock(mb_client, addr_from=1202, addr_to=1212, unit=UNIT)
+        reader = RegistryReader.readBlock(mb_client, addr_from=3202, addr_to=3236, unit=UNIT)
         d = {
-            'frequency': reader.read(1202),
-            'current': reader.read(1204),
-            'torque': reader.read(1205),
-            'voltage': reader.read(1208),
-            'power': reader.read(1211)
+            'frequency': reader.read(3202),
+            'current': reader.read(3204),
+            'torque': reader.read(3205),
+            'voltage': reader.read(3208),
+            'power': reader.read(3211),
+            'torqueNm': reader.read(3216),
+            'torquePercent': reader.read(3226)
         }
 
         log.debug("Fisrt block decoded: {0}".format(json.dumps(d)))
 
         # Read a continious block of registers [from...to], parse out the values
-        reader = RegistryReader.readBlock(mb_client, addr_from=2004, addr_to=2012, unit=UNIT)
+        reader = RegistryReader.readBlock(mb_client, addr_from=12004, addr_to=12004, unit=UNIT)
 
-        d['speed_SPD'] = reader.read(2004)
-        d['speed_SPDM'] = reader.read(2011)
-        d['speed_SPD1'] = reader.read(2012)
+        d['speed_SPD'] = reader.read(12004)
 
         # Compute the power
         d['power_computed'] = d['torque'] * (d['speed_SPD'] / 5252.0)
@@ -110,7 +112,7 @@ def poll_device(mb_client, device_id, mqtt_client):
 
         log.info("Publish results to topic in AWS IoT...")
         mqtt_client.publish(
-            topic='dt/control/{0}'.format(device_id),
+            topic='dt/device_data/{0}'.format(device_id),
             payload=json.dumps(d))
     except Exception as e:
         logging.info("Error: {0}".format(str(e)))
