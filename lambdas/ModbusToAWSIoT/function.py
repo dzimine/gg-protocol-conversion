@@ -27,9 +27,8 @@ logging.basicConfig(stream=sys.stdout, level=logging.DEBUG)
 log.info("Starting up...")
 
 HOSTS = os.environ.get('HOSTS', '127.0.0.1:5020, localhost:5020')
-PORT = os.environ.get('PORT', 5020)
 POLL_INTERVAL = os.environ.get('POLL_INTERVAL', 5)
-UNIT = 1
+UNIT = os.environ.get('UNIT', 1)
 
 
 class RegistryReader(object):
@@ -47,7 +46,7 @@ class RegistryReader(object):
     @classmethod
     def readBlock(klass, mb_client, addr_from, addr_to, unit):
         rr = mb_client.read_holding_registers(addr_from, addr_to - addr_from + 2, unit=unit)
-        # TODO: catch error and throw user friendly exception.
+        # TODO: XXX: catch error and throw a user friendly exception.
         return klass(addr_from, addr_to, rr.registers)
 
     def read(self, addr):
@@ -138,4 +137,4 @@ while True:
 
 # This is a dummy handler and will not be invoked on GG
 def handler(event, context):
-    return
+    log.debug("Why calling me? I am a dummy handler. Event='{0}'".format(event))
