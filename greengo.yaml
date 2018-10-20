@@ -13,7 +13,7 @@ Lambdas:
     package: lambdas/ModbusToAWSIoT
     alias: dev
     greengrassConfig:
-      MemorySize: 128000 # Kb, ask AWS why
+      MemorySize: 256000 # Kb, ask AWS why
       Timeout: 10 # Sec
       Pinned: True # Set True for long-lived functions
       Environment:
@@ -21,6 +21,7 @@ Lambdas:
         Variables:
            INTERVAL: '5'
            HOSTS: '127.0.0.1:5020, localhost:5020'
+           UNIT: '1'
 
   - name: AnomalyCatcher
     handler: function.handler
@@ -28,7 +29,7 @@ Lambdas:
 
     alias: dev
     greengrassConfig:
-      MemorySize: 256000 # Kb, ask AWS why
+      MemorySize: 512000 # Kb, ask AWS why
       Timeout: 5 # Sec
       Pinned: True # Set True for long-lived functions
       Environment:

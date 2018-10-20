@@ -122,8 +122,8 @@ class RegisterWriter():
             # self.mb_client.write_registers(address, payload, skip_encode=True, unit=UNIT)
 
         else:
-            logging.debug("Wrote value '{0}' to 16bit register".format(value))
-            self.mb_client.write_register(address, value, unit=UNIT)
+            logging.debug("Wrote value '{0}' to 16bit register as {1}".format(value, int(value)))
+            self.mb_client.write_register(address, int(value), unit=UNIT)
 
 
 # in an infinite loop, this procedure will poll the cpu temperature and write
