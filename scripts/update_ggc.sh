@@ -15,4 +15,4 @@ sudo rm -rf  /greengrass/ggc/deployment/lambda/*
 
 
 echo "Restart GGC daemon to pick up the changes..."
-/greengrass/ggc/core/greengrassd restart
+sudo /greengrass/ggc/core/greengrassd restart
