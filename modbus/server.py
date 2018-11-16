@@ -9,7 +9,7 @@ from pymodbus.server.sync import StartTcpServer
 from pymodbus.datastore import ModbusSequentialDataBlock
 from pymodbus.datastore import ModbusSlaveContext, ModbusServerContext
 
-HOST = 'localhost'
+HOST = '0.0.0.0'
 PORT = 5020
 
 logger = logging.getLogger(__name__)
