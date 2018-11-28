@@ -42,7 +42,7 @@ BETA = 0.5
 THRESHOLD = .05
 DATA_COLS = ["torque"]
 KEY_PARAM = "device_id"
-TOPIC = 'dt/anomalies'
+TOPIC = 'dt/device_anomalies'
 
 
 class Table(object):
