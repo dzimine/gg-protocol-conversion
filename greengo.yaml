@@ -1,19 +1,19 @@
 # Greeengrass Group definition file
 Group:
-  name: Modbus-proxy
+  name: Modbus-greengate
 Cores:
-  - name: Modbus-proxy_core
+  - name: Modbus-greengate_core
     key_path: ./certs
     config_path: ./config
     SyncShadow: False
 
 Lambdas:
-  - name: ModbusToAWSIoT
+  - name: ModbusToAWSIoT-greengate
     handler: function.handler
     package: lambdas/ModbusToAWSIoT
     alias: dev
     greengrassConfig:
-      MemorySize: 256000 # Kb, ask AWS why
+      MemorySize: 256000 # Kb
       Timeout: 10 # Sec
       Pinned: True # Set True for long-lived functions
       Environment:
@@ -23,31 +23,54 @@ Lambdas:
            HOSTS: '127.0.0.1:5020, localhost:5020'
            UNIT: '1'
 
-  - name: AnomalyCatcher
+  - name: AnomalyCatcher-greengate
     handler: function.handler
     package: lambdas/AnomalyCatcher
 
     alias: dev
     greengrassConfig:
-      MemorySize: 512000 # Kb, ask AWS why
+      MemorySize: 512000 # Kb
       Timeout: 5 # Sec
       Pinned: True # Set True for long-lived functions
       Environment:
         Variables:
            T: '30'
 
+Connectors:
+  - Id: ModbusProtocolAdapterConnector
+    ConnectorArn: arn:aws:greengrass:eu-west-1::/connectors/ModbusRTUProtocolAdapter/versions/1
+    Parameters:
+      ModbusSerialPort-ResourceId: resource_1_modbus_serial_port
+      ModbusSerialPort: /dev/ttyS1
+
+Resources:
+  - Name: ModbusSerialPort
+    Id: resource_1_modbus_serial_port
+    LocalDeviceResourceData:
+      SourcePath: /dev/ttyS1
+      GroupOwnerSetting:
+        AutoAddGroupOwner: True
+
 Subscriptions:
-  - Source: Lambda::ModbusToAWSIoT
+  - Source: Lambda::ModbusToAWSIoT-greengate
     Subject: '#'
     Target: cloud
 
-  - Source: Lambda::ModbusToAWSIoT
+  - Source: Lambda::ModbusToAWSIoT-greengate
     Subject: 'dt/device_data/#'
-    Target: Lambda::AnomalyCatcher
+    Target: Lambda::AnomalyCatcher-greengate
 
-  - Source: Lambda::AnomalyCatcher
+  - Source: Lambda::AnomalyCatcher-greengate
     Subject: '#'
     Target: cloud
+
+  - Source: Connector::ModbusProtocolAdapterConnector
+    Subject: modbus/adapter/response
+    Target: cloud
+
+  - Source: cloud
+    Subject: modbus/adapter/request
+    Target: Connector::ModbusProtocolAdapterConnector
 
 Loggers:
   - Component: Lambda
@@ -55,5 +78,8 @@ Loggers:
     Level: DEBUG
     Space: 1024
     Type: FileSystem
+
+
+
 
 
