@@ -26,9 +26,9 @@ logging.basicConfig(stream=sys.stdout, level=logging.DEBUG)
 
 log.info("Starting up...")
 
-HOSTS = os.environ.get('HOSTS', '127.0.0.1:5020, localhost:5020')
-POLL_INTERVAL = os.environ.get('POLL_INTERVAL', 5)
-UNIT = os.environ.get('UNIT', 1)
+HOSTS = os.environ.get('HOSTS', '127.0.0.1:5022, localhost:5020')
+POLL_INTERVAL = int(os.environ.get('POLL_INTERVAL', 5))
+UNIT = int(os.environ.get('UNIT', 1))
 
 
 class RegistryReader(object):
@@ -45,8 +45,14 @@ class RegistryReader(object):
 
     @classmethod
     def readBlock(klass, mb_client, addr_from, addr_to, unit):
-        rr = mb_client.read_holding_registers(addr_from, addr_to - addr_from + 2, unit=unit)
-        # TODO: XXX: catch error and throw a user friendly exception.
+        try:
+            rr = mb_client.read_holding_registers(addr_from, addr_to - addr_from + 2, unit=unit)
+        except Exception as e:
+            err = "Error reading holding registers from {0}:{1} unit={2}, "\
+                "block {3}-{4}:\n--->{5}".format(
+                    mb_client.host, mb_client.port, unit, addr_from, addr_to, e)
+            raise type(e)(err)
+
         return klass(addr_from, addr_to, rr.registers)
 
     def read(self, addr):
@@ -72,7 +78,7 @@ def get_modbus_clients(hostlist):
             log.info("Initializing modbus client: {0}:{1}".format(host, port))
             mb_clients.append(ModbusClient(host, port=port))
     except Exception as e:
-        logging.info("Error while parsing host list '{0}': {1}".format(hostlist, str(e)))
+        log.info("Error while parsing host list '{0}': {1}".format(hostlist, str(e)))
         raise(e)
     return mb_clients
 
@@ -80,7 +86,7 @@ def get_modbus_clients(hostlist):
 # This procedure will poll the data modbus slave device (simulator)
 def poll_device(mb_client, device_id, mqtt_client):
     try:
-        log.info("Connecting to modbus slave device {0}:{0}".format(
+        log.info("Connecting to modbus slave device {0}:{1}".format(
             mb_client.host, mb_client.port))
 
         # Read a continious block of registers [from...to], parse out the values
@@ -114,7 +120,7 @@ def poll_device(mb_client, device_id, mqtt_client):
             topic='dt/device_data/{0}'.format(device_id),
             payload=json.dumps(d))
     except Exception as e:
-        logging.info("Error: {0}".format(str(e)))
+        log.error("Error: {0}".format(str(e)))
         mqtt_client.publish(
             topic='dt/errors/{0}'.format(device_id),
             payload=json.dumps({'Error': str(e)}))
