@@ -36,13 +36,17 @@ def get_builder(typename, bits):
 
 
 ANOMALY_PERIOD = 100
+ANOMALY_FACTOR = 1  # 20 # 1 for none, 20 for max...
 anomaly_counter = 0
 
 
 def anomaly():
     global anomaly_counter
     anomaly_counter += 1
-    return 10 if anomaly_counter % ANOMALY_PERIOD else 1
+    if anomaly_counter % ANOMALY_PERIOD:
+        logger.info("ANOMALY!")
+        return 1
+    return 1
 
 registers = [
     {
