@@ -8,7 +8,7 @@ sudo apt-get install -y sqlite3 python2.7 binutils curl
 wget -O /vagrant/downloads/root.ca.pem http://www.symantec.com/content/en/us/enterprise/verisign/roots/VeriSign-Class%203-Public-Primary-Certification-Authority-G5.pem
 
 # Copy greengrass binaries
-sudo tar -xzf /vagrant/downloads/greengrass-ubuntu-x86_64-1.6.99.tar.gz -C /
+sudo tar -xzf /vagrant/downloads/greengrass-linux-x86-64-1.7.0.tar.gz -C /
 
 # # Back up group.json - you'll thank me later
 # sudo cp /greengrass/ggc/deployment/group/group.json /greengrass/ggc/deployment/group/group.json.orig
