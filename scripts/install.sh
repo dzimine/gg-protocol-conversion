@@ -18,14 +18,16 @@ sudo apt-get install -y python-dev python-setuptools gcc
 sudo easy_install pip
 
 # Install python dependencies for Lambda functions
-cd /vagrant
-./scripts/build-py.sh
-
-# Hack to put AWS Greengrass Core SDK in the right place,
+# It includes the hack to put AWS Greengrass Core SDK from ./downloads in site-packages,
 # because the damn thing doesn't install as a normal python dependency.
-    # mkdir -p /vagrant/lambdas/ModbusToAWSIoT/site-packages
-tar -xzf /vagrant/downloads/greengrass-core-skd-1.2.0-dz.tar.gz -C /vagrant/lambdas/ModbusToAWSIoT/site-packages/
+cd /vagrant
+./scripts/build_py.sh
 
+# Install Modbus requirements on the host, for Modbus slave and simulator
+sudo pip install -r /vagrant/requirements.txt
 
-# cd /greengrass/ggc/core
-# sudo ./greengrassd start
+# Post install steps:
+# 1. run greengo on the host system to provision group in AWS
+# 2. copy certificates - ./scripts/update_ggc.sh
+# 3. sudo /greengrass/ggc/core/greengrassd start
+
