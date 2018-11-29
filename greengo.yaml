@@ -78,8 +78,3 @@ Loggers:
     Level: DEBUG
     Space: 1024
     Type: FileSystem
-
-
-
-
-
