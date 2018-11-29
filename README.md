@@ -94,9 +94,10 @@ run `./scripts/update_ggc.sh`  on the Vagrant VM.
     ```
 
 
-# GreenGate:
+## AWS Greengrass Connector for Modbus Protocol
+Some tips for ModbusProtocolAdapterConnector:
 
-To test a value:
+* To test a value:
 ```
 {
     "slave": {
@@ -113,7 +114,7 @@ To test a value:
 }
 ```
 
-To simulate anomaly:
+* To simulate anomaly:
 ```
 {
     "slave":{
@@ -130,11 +131,11 @@ To simulate anomaly:
 }
 ```
 
-To start the motor: 
+* To start the motor: 
 ```
 {
     "slave":{
-        "host": "192.168.0.13",
+        "host": "192.168.0.17",
         "port": 502
     },
     "request":{
