@@ -1,14 +1,13 @@
 # Greengrass ModBus Protocol Conversion
 
-This is a codified version of AWS blog [Perform Protocol Conversion at the Edge with AWS Lambda and AWS Greengrass](https://aws.amazon.com/blogs/iot/perform-protocol-conversion-at-the-edge-with-aws-lambda-and-aws-greengrass/).
+This is a codified version of the demo presented at [AWS re:Invent 2018, session IOT365](https://www.portal.reinvent.awsevents.com/connect/sessionDetail.ww?SESSION_ID=92026). It uses AWS Greengrass to pull IIoT data off Modbus devices, run Modbus to MQTT protocol conversion, send data to the AWS IoT. It also runs a local anomaly detection, and closes the control loop with new *AWS Greengrass Modubs connector*. 
 
-The Greengrass setup is defined as YAML in [`greengo.yaml`](./greengo.yaml) and deployed
-programmatically via AWS API. This way surely beats clicking through 19 screens on AWS console, and
+
+> WARNING: AWS Modubs Connector has beenmodified to support TCP; the modification is not included for licensing reasons; you are smart enough to do it on your own. Or, stay tuned for AWS publishing the TCP version of Modbus connector.
+
+The concept is partially inspired by AWS blog [Perform Protocol Conversion at the Edge with AWS Lambda and AWS Greengrass](https://aws.amazon.com/blogs/iot/perform-protocol-conversion-at-the-edge-with-aws-lambda-and-aws-greengrass/). In contrast, however, the Greengrass setup is defined as YAML in [`greengo.yaml`](./greengo.yaml) and deployed programmatically via AWS API. This way surely beats clicking through 19 screens on AWS console, and
 starting all over because you might fat-fingered something mid way.
 
-In the blog, all Modbus components - device slave server, simulator client, and convertor client -
-are running as Lambdas on Greengrass for simplicity. I added a bit of realism by moving the device
-and the simulator out of Greengrass.
 
 
 ## Modbus
@@ -36,7 +35,7 @@ Run `server.py` and `simulator.py` in two terminals and watch the registers bein
 0. Create Vagrant VM. It will create Ubuntu 16 VM and install Greengrass Core on it. Check [`Vagrantfile`](./Vagrantfile) and [`./scripts/install.sh`](./scripts/install.sh) to understandwhat is happening.
 
 1. Install [`greengo`](http://greengo.io). It's a tool to describe Greengrass deployment as YAML and
-   push it to AWS.  Saves tons of clicks on AWS Console. Use the head of `master` branch.
+   push it to AWS.  Saves tons of clicks on AWS Console. Use the head of `master` branch, to pick the latest changes.
 
     ```
     pip install git+git://github.com/dzimine/greengo.git#egg=greengo
@@ -93,6 +92,61 @@ run `./scripts/update_ggc.sh`  on the Vagrant VM.
     ```
     tail -f /greengrass/ggc/var/log/user/$REGION/$ACCOUNT/ModbusToAWSIoT.log
     ```
+
+
+# GreenGate:
+
+To test a value:
+```
+{
+    "slave": {
+        "host": "192.168.0.13",
+        "port": 502
+    },
+    "request": {
+        "request_id": "TestRequest",
+        "operation": "ReadHoldingRegistersRequest",
+        "device": 248,
+        "address": 8529,
+        "count": 1
+    }
+}
+```
+
+To simulate anomaly:
+```
+{
+    "slave":{
+    "host":"localhost",
+    "port":5020
+    },
+    "request":{
+        "request_id": "SimulateTorqueAnomaly",
+        "operation": "WriteSingleRegisterRequest",
+        "device": 1,
+        "address": 3205,
+        "value": 140
+    }
+}
+```
+
+To start the motor: 
+```
+{
+    "slave":{
+        "host": "192.168.0.13",
+        "port": 502
+    },
+    "request":{
+        "request_id": "StartTheMotor",
+        "operation": "WriteSingleRegisterRequest",
+        "device": 248,
+        "address": 8502,
+        "value": 140
+    }
+}
+```
+
 
 ## Other
 
