@@ -1,0 +1,26 @@
+# YAML used for readibility.
+# Use by running the following CLI:
+# aws iot create-topic-rule --rule-name=FOO --topic-rule-payload "`cat greengate_act.yaml | yq .`"
+
+description: Rule to shut down the motor (set FREQUENCY=0) on dectected anomaly.
+
+sql: |
+  SELECT
+    {
+      "host": get(slave.host, 'localhost'),
+      "port": get(slave.port, 502),
+    } as slave,
+    {
+        "request_id": "StopTheMotor",
+        "operation": "WriteSingleRegisterRequest",
+        "device": 1,
+        "address": 3205,
+        "value": 0
+    } as request
+
+  FROM 'dt/device_anomalies'
+
+actions:
+   - republish:
+        topic: "modbus/adapter/request"
+        roleArn: "arn:aws:iam::000000000000:role/service-role/iot_rules_mqtt_poster"
