@@ -18,7 +18,7 @@
   "errorAction": {
       "republish": {
           "topic": "rules/errors",
-          "roleArn": "arn:aws:iam::053075847820:role/service-role/iot_rules_mqtt_poster"
+          "roleArn": "arn:aws:iam::000000000000:role/service-role/iot_rules_mqtt_poster"
       }
   }
 }
