@@ -1,7 +1,7 @@
 # -*- mode: ruby -*-
 # vi: set ft=ruby :
 
-hostname   = ENV['HOSTNAME'] ? ENV['HOSTNAME'] : 'proto-modbus'
+hostname   = ENV['HOSTNAME'] ? ENV['HOSTNAME'] : 'modbus-demo'
 box        = ENV['BOX'] ? ENV['BOX'] : 'ubuntu/xenial64'
 
 # Vagrantfile API/syntax version. Don't touch unless you know what you're doing!
@@ -25,7 +25,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
     # config.vm.synced_folder "/path/to/directory/on/host", "/opt/stackstorm/packs", :nfs => true, :mount_options => ['nfsvers=3']
 
     # Configure a private network
-    gg.vm.network :private_network, ip: "192.168.16.33"
+    # gg.vm.network :private_network, ip: "192.168.16.33"
 
     # Public (bridged) network may come handy for external access to VM (e.g. sensor development)
     # See https://www.vagrantup.com/docs/networking/public_network.html
