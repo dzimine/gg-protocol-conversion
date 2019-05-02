@@ -1,2 +1,2 @@
 pymodbus >=2.0.1
-# greengrass_core_sdk
+greengrasssdk
