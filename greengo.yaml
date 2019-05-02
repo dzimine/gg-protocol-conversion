@@ -1,14 +1,15 @@
 # Greeengrass Group definition file
 Group:
-  name: Modbus-greengate
+  name: Modbus-demo
 Cores:
-  - name: Modbus-greengate_core
+  - name: Modbus-demo_core
     key_path: ./certs
     config_path: ./config
     SyncShadow: False
 
 Lambdas:
-  - name: ModbusToAWSIoT-greengate
+  - name: ModbusToAWSIoT-demo
+    runtime: python2.7
     handler: function.handler
     package: lambdas/ModbusToAWSIoT
     alias: dev
@@ -23,10 +24,10 @@ Lambdas:
            HOSTS: '127.0.0.1:5020, localhost:5020'
            UNIT: '1'
 
-  - name: AnomalyCatcher-greengate
+  - name: AnomalyCatcher-demo
+    runtime: python2.7
     handler: function.handler
     package: lambdas/AnomalyCatcher
-
     alias: dev
     greengrassConfig:
       MemorySize: 512000 # Kb
@@ -36,41 +37,18 @@ Lambdas:
         Variables:
            T: '30'
 
-Connectors:
-  - Id: ModbusProtocolAdapterConnector
-    ConnectorArn: arn:aws:greengrass:eu-west-1::/connectors/ModbusRTUProtocolAdapter/versions/1
-    Parameters:
-      ModbusSerialPort-ResourceId: resource_1_modbus_serial_port
-      ModbusSerialPort: /dev/ttyS1
-
-Resources:
-  - Name: ModbusSerialPort
-    Id: resource_1_modbus_serial_port
-    LocalDeviceResourceData:
-      SourcePath: /dev/ttyS1
-      GroupOwnerSetting:
-        AutoAddGroupOwner: True
-
 Subscriptions:
-  - Source: Lambda::ModbusToAWSIoT-greengate
+  - Source: Lambda::ModbusToAWSIoT-demo
     Subject: '#'
     Target: cloud
 
-  - Source: Lambda::ModbusToAWSIoT-greengate
+  - Source: Lambda::ModbusToAWSIoT-demo
     Subject: 'dt/device_data/#'
-    Target: Lambda::AnomalyCatcher-greengate
+    Target: Lambda::AnomalyCatcher-demo
 
-  - Source: Lambda::AnomalyCatcher-greengate
+  - Source: Lambda::AnomalyCatcher-demo
     Subject: '#'
     Target: cloud
-
-  - Source: Connector::ModbusProtocolAdapterConnector
-    Subject: modbus/adapter/response
-    Target: cloud
-
-  - Source: cloud
-    Subject: modbus/adapter/request
-    Target: Connector::ModbusProtocolAdapterConnector
 
 Loggers:
   - Component: Lambda
